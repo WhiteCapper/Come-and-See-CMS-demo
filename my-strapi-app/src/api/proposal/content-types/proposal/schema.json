@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "proposals",
+  "info": {
+    "singularName": "proposal",
+    "pluralName": "proposals",
+    "displayName": "Proposal",
+    "description": "Major donor proposal records used for cultivation and solicitation."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "donor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::donor.donor"
+    },
+    "fundingOpportunity": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::funding-opportunity.funding-opportunity"
+    },
+    "askAmount": {
+      "type": "integer"
+    },
+    "narrative": {
+      "type": "richtext"
+    },
+    "attachments": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["files", "images", "videos"]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["draft", "sent", "accepted", "declined"],
+      "default": "draft"
+    },
+    "dateSent": {
+      "type": "date"
+    },
+    "followUpTasks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::task.task"
+    }
+  }
+}

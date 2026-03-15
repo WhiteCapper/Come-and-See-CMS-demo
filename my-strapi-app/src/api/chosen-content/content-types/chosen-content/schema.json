@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chosen_contents",
+  "info": {
+    "singularName": "chosen-content",
+    "pluralName": "chosen-contents",
+    "displayName": "chosen-content"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "season": {
+      "type": "integer"
+    },
+    "episode": {
+      "type": "integer"
+    },
+    "description": {
+      "type": "string"
+    },
+    "media": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "tags": {
+      "type": "json"
+    },
+    "contenttype": {
+      "type": "enumeration",
+      "enum": [
+        "Type 1",
+        "Type 2"
+      ]
+    }
+  }
+}

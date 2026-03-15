@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tasks",
+  "info": {
+    "singularName": "task",
+    "pluralName": "tasks",
+    "displayName": "Task",
+    "description": "Moves management tasks for donor cultivation, follow-up, and proposal workflows."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "donor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::donor.donor"
+    },
+    "assignedTo": {
+      "type": "string"
+    },
+    "dueDate": {
+      "type": "date"
+    },
+    "taskType": {
+      "type": "enumeration",
+      "enum": [
+        "call",
+        "email",
+        "meeting",
+        "proposal",
+        "stewardship_touch",
+        "other"
+      ],
+      "default": "other"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "deferred"
+      ],
+      "default": "pending"
+    }
+  }
+}

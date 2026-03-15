@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "Event",
+    "description": "Donor-facing events including screenings, set visits, boutique gatherings, and 1:1 meetings."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "screening",
+        "set_visit",
+        "boutique_event",
+        "donor_meeting",
+        "conference",
+        "other"
+      ],
+      "default": "other"
+    },
+    "location": {
+      "type": "string"
+    },
+    "date": {
+      "type": "datetime"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "donorsInvited": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::donor.donor"
+    },
+    "donorsAttended": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::donor.donor"
+    },
+    "assets": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images", "videos", "files"]
+    }
+  }
+}

@@ -1,0 +1,52 @@
+
+{
+  "kind": "collectionType",
+  "collectionName": "funding_opportunities",
+  "info": {
+    "singularName": "funding-opportunity",
+    "pluralName": "funding-opportunities",
+    "displayName": "Funding Opportunity",
+    "description": "Fundable projects and initiatives used in donor proposals and cultivation."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "projectName": {
+      "type": "string",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "translation",
+        "production",
+        "global_distribution",
+        "forever_free",
+        "discipleship",
+        "other"
+      ],
+      "default": "other"
+    },
+    "fundingLevel": {
+      "type": "integer",
+      "required": false
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "impactMetrics": {
+      "type": "text"
+    },
+    "relatedStories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::impact-story.impact-story"
+    },
+    "proposalAssets": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["files", "images", "videos"]
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "donors",
+  "info": {
+    "singularName": "donor",
+    "pluralName": "donors",
+    "displayName": "Donor",
+    "description": "CMS-side donor profile used for proposals, events, and cultivation content (not a CRM replacement)."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "virtuousId": {
+      "type": "string",
+      "unique": false
+    },
+    "notes": {
+      "type": "text"
+    },
+    "contentPreferences": {
+      "type": "json"
+    },
+    "proposals": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::proposal.proposal"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::event.event"
+    },
+    "assignedStaff": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "json"
+    }
+  }
+}
