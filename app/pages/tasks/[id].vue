@@ -9,7 +9,9 @@
     <div v-else class="task-detail">
       <h1 class="title">{{ task.name }}</h1>
       <p class="meta">
-        <span class="pill">{{ formatStatus(task.status) }}</span>
+        <span class="pill" :class="{ 'pill-muted': isPending(task.status) }">
+          {{ formatStatus(task.status) }}
+        </span>
         <span v-if="task.taskType" class="pill pill-muted">{{ formatStatus(task.taskType) }}</span>
         <span v-if="task.dueDate" class="pill pill-muted">Due {{ task.dueDate }}</span>
       </p>
@@ -68,6 +70,11 @@ const formatStatus = (status?: string): string => {
   return status.replace(/_/g, ' ')
 }
 
+const isPending = (status?: string): boolean => {
+  if (!status) return false
+  return status.toLowerCase() === 'pending'
+}
+
 onMounted(async () => {
   const idParam = route.params.id
   const id = Array.isArray(idParam) ? idParam[0] : idParam
@@ -95,6 +102,17 @@ onMounted(async () => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap');
 
+:root {
+  --ink: #0f172a;
+  --muted: #64748b;
+  --accent: #0f766e;
+  --accent-2: #0f5d56;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --ring: rgba(13, 148, 136, 0.35);
+  --shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+}
+
 .detail-container {
   min-height: 100vh;
   padding: 3rem 1.5rem 4rem;
@@ -106,11 +124,46 @@ onMounted(async () => {
   color: #0f172a;
 }
 
+.btn-primary,
+.btn-secondary {
+  border: none;
+  cursor: pointer;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.98rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-primary {
+  background: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(13, 148, 136, 0.2);
+}
+
+.btn-primary:hover {
+  background: #0d5f59;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #c7f9f2;
+  color: #0f172a;
+}
+
+.btn-secondary:hover {
+  background: #99f6e4;
+  box-shadow: 0 10px 20px rgba(13, 148, 136, 0.2);
+  transform: translateY(-1px);
+}
+
 .back-link {
   display: inline-block;
   margin-bottom: 1.5rem;
-  color: #0f766e;
-  text-decoration: none;
   font-weight: 600;
 }
 
@@ -124,10 +177,10 @@ onMounted(async () => {
 .task-detail {
   max-width: 900px;
   margin: 0 auto;
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 20px;
   padding: 2.5rem;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+  box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
 }
@@ -139,7 +192,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(90deg, #0f766e, #0f5d56);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
 }
 
 .title {
@@ -156,7 +209,7 @@ onMounted(async () => {
 }
 
 .pill {
-  background: #0f766e;
+  background: var(--accent);
   color: #ffffff;
   padding: 0.35rem 0.8rem;
   border-radius: 999px;
@@ -177,7 +230,7 @@ onMounted(async () => {
 }
 
 .field {
-  background: #f8fafc;
+  background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 14px;
   padding: 1rem;
@@ -187,7 +240,7 @@ onMounted(async () => {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 700;
   margin-bottom: 0.35rem;
 }
@@ -195,7 +248,7 @@ onMounted(async () => {
 .value {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .notes {
@@ -213,5 +266,10 @@ onMounted(async () => {
   color: #475569;
   white-space: pre-wrap;
 }
-</style>
 
+@media (max-width: 640px) {
+  .task-detail {
+    padding: 2rem 1.5rem;
+  }
+}
+</style>

@@ -1,38 +1,42 @@
 <template>
   <div class="list-container">
     <div class="list-wrapper">
-      <h1>Donors</h1>
-      <p class="subtitle">Manage donor profiles and engagement history</p>
+      <h1>Events</h1>
+      <p class="subtitle">Track donor-facing screenings, meetings, and gatherings</p>
       <div class="page-actions">
         <NuxtLink to="/" class="btn-secondary back-link">Back to Home</NuxtLink>
-        <NuxtLink to="/donors/create" class="btn-primary">Create New Donor</NuxtLink>
+        <NuxtLink to="/events/create" class="btn-primary">Create New Event</NuxtLink>
       </div>
 
-      <div v-if="loading" class="loading">Loading donors...</div>
+      <div v-if="loading" class="loading">Loading events...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
 
-      <div v-else-if="donors.length === 0" class="empty">
-        No donors found.
+      <div v-else-if="events.length === 0" class="empty">
+        No events found.
       </div>
 
       <div v-else class="table">
         <div class="table-header">
           <div class="cell name">Name</div>
-          <div class="cell events">Events</div>
-          <div class="cell staff">Assigned Staff</div>
+          <div class="cell type">Type</div>
+          <div class="cell date">Date</div>
+          <div class="cell location">Location</div>
+          <div class="cell invited">Invited</div>
           <div class="cell actions">Actions</div>
         </div>
 
         <div
-          v-for="donor in donors"
-          :key="donor.id"
+          v-for="event in events"
+          :key="event.id"
           class="table-row"
         >
-          <div class="cell name">{{ donor.name }}</div>
-          <div class="cell events">{{ getEventSummary(donor) }}</div>
-          <div class="cell staff">{{ donor.assignedStaff || '--' }}</div>
+          <div class="cell name">{{ event.name }}</div>
+          <div class="cell type">{{ formatLabel(event.type) }}</div>
+          <div class="cell date">{{ formatDate(event.date) }}</div>
+          <div class="cell location">{{ event.location || '--' }}</div>
+          <div class="cell invited">{{ formatCount(event.donorsInvited) }}</div>
           <div class="cell actions">
-            <NuxtLink :to="`/donors/${donor.documentId || donor.id}`" class="btn-details">
+            <NuxtLink :to="`/events/${event.documentId || event.id}`" class="btn-details">
               Details
             </NuxtLink>
           </div>
@@ -44,33 +48,42 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useDonors } from '~/composables/useDonors'
-import type { Donor } from '~/types/donor'
+import { useEvents } from '~/composables/useEvents'
+import type { Event } from '~/types/event'
 
-const donors = ref<Donor[]>([])
+const events = ref<Event[]>([])
 const loading = ref(true)
 const error = ref('')
 
-const { getDonors } = useDonors()
+const { getEvents } = useEvents()
 
-const getEventSummary = (donor: Donor): string => {
-  const events: any = donor.events
-  if (!events) return '--'
-  if (Array.isArray(events)) return events.length ? `${events.length} events` : '--'
-  if (Array.isArray(events.data)) {
-    return events.data.length ? `${events.data.length} events` : '--'
-  }
+const formatLabel = (value?: string): string => {
+  if (!value) return '--'
+  return value.replace(/_/g, ' ')
+}
+
+const formatDate = (value?: string): string => {
+  if (!value) return '--'
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return value
+  return parsed.toLocaleString()
+}
+
+const formatCount = (relation: any): string => {
+  if (!relation) return '--'
+  if (Array.isArray(relation)) return relation.length ? `${relation.length}` : '--'
+  if (Array.isArray(relation.data)) return relation.data.length ? `${relation.data.length}` : '--'
   return '--'
 }
 
 onMounted(async () => {
   try {
-    const res = await getDonors()
+    const res = await getEvents()
     if (res) {
-      donors.value = res
+      events.value = res
     }
   } catch (e) {
-    error.value = 'Failed to load donors.'
+    error.value = 'Failed to load events.'
     console.error(e)
   } finally {
     loading.value = false
@@ -104,7 +117,7 @@ onMounted(async () => {
 }
 
 .list-wrapper {
-  max-width: 980px;
+  max-width: 1040px;
   margin: 0 auto;
   background: var(--surface);
   border-radius: 20px;
@@ -167,7 +180,7 @@ h1 {
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr 0.6fr;
+  grid-template-columns: 1.4fr 1fr 1.1fr 1.1fr 0.7fr 0.7fr;
   gap: 1rem;
   align-items: center;
   padding: 0.95rem 1.1rem;
@@ -192,6 +205,12 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.cell.type {
+  text-transform: capitalize;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .btn-primary,
@@ -234,6 +253,13 @@ h1 {
   transform: translateY(-1px);
 }
 
+@media (max-width: 980px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr 0.7fr 0.7fr;
+  }
+}
+
 @media (max-width: 900px) {
   .table-header {
     display: none;
@@ -253,13 +279,23 @@ h1 {
     font-weight: 700;
   }
 
-  .cell.events::before {
-    content: 'Events: ';
+  .cell.type::before {
+    content: 'Type: ';
     font-weight: 700;
   }
 
-  .cell.staff::before {
-    content: 'Assigned Staff: ';
+  .cell.date::before {
+    content: 'Date: ';
+    font-weight: 700;
+  }
+
+  .cell.location::before {
+    content: 'Location: ';
+    font-weight: 700;
+  }
+
+  .cell.invited::before {
+    content: 'Invited: ';
     font-weight: 700;
   }
 }

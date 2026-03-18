@@ -659,6 +659,59 @@ export interface ApiImpactStoryImpactStory extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiKpiKpi extends Struct.CollectionTypeSchema {
+  collectionName: 'kpis';
+  info: {
+    description: 'Key performance indicators for donor engagement, proposals, events, and development activity.';
+    displayName: 'KPI';
+    pluralName: 'kpis';
+    singularName: 'kpi';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    category: Schema.Attribute.Enumeration<
+      [
+        'donor_engagement',
+        'proposals',
+        'events',
+        'stewardship',
+        'portfolio_activity',
+        'revenue',
+        'other',
+      ]
+    > &
+      Schema.Attribute.DefaultTo<'other'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    endDate: Schema.Attribute.Date;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::kpi.kpi'> &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    notes: Schema.Attribute.Text;
+    period: Schema.Attribute.Enumeration<
+      ['daily', 'weekly', 'monthly', 'quarterly', 'annually', 'custom']
+    > &
+      Schema.Attribute.DefaultTo<'monthly'>;
+    publishedAt: Schema.Attribute.DateTime;
+    relatedDonor: Schema.Attribute.Relation<'manyToOne', 'api::donor.donor'>;
+    relatedEvent: Schema.Attribute.Relation<'manyToOne', 'api::event.event'>;
+    relatedProposal: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::proposal.proposal'
+    >;
+    startDate: Schema.Attribute.Date;
+    targetValue: Schema.Attribute.Decimal;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    value: Schema.Attribute.Decimal;
+  };
+}
+
 export interface ApiProposalProposal extends Struct.CollectionTypeSchema {
   collectionName: 'proposals';
   info: {
@@ -1257,6 +1310,7 @@ declare module '@strapi/strapi' {
       'api::event.event': ApiEventEvent;
       'api::funding-opportunity.funding-opportunity': ApiFundingOpportunityFundingOpportunity;
       'api::impact-story.impact-story': ApiImpactStoryImpactStory;
+      'api::kpi.kpi': ApiKpiKpi;
       'api::proposal.proposal': ApiProposalProposal;
       'api::task.task': ApiTaskTask;
       'plugin::content-releases.release': PluginContentReleasesRelease;

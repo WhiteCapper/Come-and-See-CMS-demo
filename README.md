@@ -3,7 +3,8 @@
 A full-stack web application built with Nuxt.js 4, Vue 3, and Strapi CMS, 
 demonstrating rapid framework adoption through AI-accelerated development.
 
-## Built in under a day to demonstrate technical fit for Come and See Foundation
+## Core stack, Strapi schema, and initail pages configured in less than a day
+## 15 Create, List, & Detail pages built in an hour and half after that
 
 ## Tech Stack
 - **Frontend:** Nuxt.js 4, Vue 3, Single File Components, REST API integration
@@ -23,7 +24,7 @@ demonstrating rapid framework adoption through AI-accelerated development.
 
 ## Purpose
 Built specifically to demonstrate hands-on capability with the Come and See 
-Foundation's exact technology stack. Focused on architecture and functionality 
+Foundation's technology stack. Focused on architecture and functionality 
 over UI polish — production styling would follow established design systems.
 
 ## Development Approach

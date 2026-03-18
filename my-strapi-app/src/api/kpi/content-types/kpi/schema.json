@@ -1,0 +1,74 @@
+{
+  "kind": "collectionType",
+  "collectionName": "kpis",
+  "info": {
+    "singularName": "kpi",
+    "pluralName": "kpis",
+    "displayName": "KPI",
+    "description": "Key performance indicators for donor engagement, proposals, events, and development activity."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "donor_engagement",
+        "proposals",
+        "events",
+        "stewardship",
+        "portfolio_activity",
+        "revenue",
+        "other"
+      ],
+      "default": "other"
+    },
+    "value": {
+      "type": "decimal"
+    },
+    "targetValue": {
+      "type": "decimal"
+    },
+    "period": {
+      "type": "enumeration",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "annually",
+        "custom"
+      ],
+      "default": "monthly"
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "relatedDonor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::donor.donor"
+    },
+    "relatedProposal": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::proposal.proposal"
+    },
+    "relatedEvent": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::event.event"
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}

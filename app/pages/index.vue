@@ -1,30 +1,40 @@
 <template>
   <div class="landing-container">
     <div class="landing-content">
-      <h1>Welcome to the Come and See Strapi Project</h1>
-      <p>A modern web application built with Nuxt.js, Vue.js, and Strapi CMS</p>
+      <h1>
+        <span>Come and See Foundation</span></br>
+        <span>Donors & Funding CMS System</span>
+      </h1>
+      <p>A modern web application demo built with Nuxt.js, Vue.js, and Strapi CMS</p>
       <div class="button-group">
-        <NuxtLink to="/impact-stories/create" class="btn-create">
-          Create Impact Story
-        </NuxtLink>
-        <NuxtLink to="/impact-stories" class="btn-secondary">
-          View Stories
-        </NuxtLink>
-        <NuxtLink to="/tasks" class="btn-secondary">
-          Tasks
-        </NuxtLink>
-        <NuxtLink to="/events" class="btn-secondary">
-          Events
-        </NuxtLink>
-        <NuxtLink to="/donors" class="btn-secondary">
-          Donors
-        </NuxtLink>
-        <NuxtLink to="/proposals" class="btn-secondary">
-          Proposals
-        </NuxtLink>
-        <NuxtLink to="/funding-opportunities" class="btn-secondary">
-          Funding Opportunities
-        </NuxtLink>
+        <div class="nav-item">
+          <NuxtLink to="/donors" class="btn-secondary">Donor</NuxtLink>
+          <p>Profiles key supporters with notes, tags, preferences, and relationships to proposals, events, and tasks.</p>
+        </div>
+        <div class="nav-item">
+          <NuxtLink to="/proposals" class="btn-secondary">Proposal</NuxtLink>
+          <p>Tracks major-gift proposals, their status, assets, and follow-up tasks tied to specific donors and opportunities.</p>
+        </div>
+        <div class="nav-item">
+          <NuxtLink to="/events" class="btn-secondary">Event</NuxtLink>
+          <p>Manages donor-facing events, including invitations, attendance, details, and related media.</p>
+        </div>
+        <div class="nav-item">
+          <NuxtLink to="/impact-stories" class="btn-secondary">Impact Story</NuxtLink>
+          <p>Stores compelling stories and outcomes used to inspire donors and strengthen proposals.</p>
+        </div>
+        <div class="nav-item">
+          <NuxtLink to="/funding-opportunities" class="btn-secondary">Funding Opportunity</NuxtLink>
+          <p>Defines fundable projects with descriptions, categories, metrics, and assets for proposal creation.</p>
+        </div>
+        <div class="nav-item">
+          <NuxtLink to="/tasks" class="btn-secondary">Task</NuxtLink>
+          <p>Organizes cultivation and stewardship actions with due dates, assignments, and donor relationships.</p>
+        </div>
+        <div class="nav-item">
+          <NuxtLink to="/kpis" class="btn-secondary">KPI</NuxtLink>
+          <p>Measures performance across donor engagement, proposals, events, stewardship, and revenue over time.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -59,6 +69,10 @@
   letter-spacing: -0.02em;
 }
 
+.landing-content h1 span {
+  display: block;
+}
+
 .landing-content p {
   font-size: 1.25rem;
   margin-bottom: 2rem;
@@ -67,10 +81,13 @@
 }
 
 .button-group {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  column-gap: 1.5rem;
+  row-gap: 1.25rem;
+  align-items: start;
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .btn-create,
@@ -82,6 +99,7 @@
   text-decoration: none;
   transition: all 0.2s;
   cursor: pointer;
+  text-align: left;
 }
 
 .btn-create {
@@ -101,5 +119,23 @@
 
 .btn-secondary:hover {
   background: #d1d5db;
+}
+
+.nav-item {
+  display: contents;
+}
+
+.nav-item p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.98rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+@media (max-width: 720px) {
+  .button-group {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

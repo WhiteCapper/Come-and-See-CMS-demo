@@ -1,43 +1,49 @@
 <template>
   <div class="detail-container">
-    <NuxtLink to="/impact-stories" class="btn-secondary back-link">Back to Impact Stories</NuxtLink>
+    <NuxtLink to="/proposals" class="btn-secondary back-link">Back to Proposals</NuxtLink>
 
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else-if="!story" class="error">Story not found.</div>
+    <div v-else-if="!proposal" class="error">Proposal not found.</div>
 
-    <div v-else class="story-detail">
-      <h1 class="title">{{ story.title }}</h1>
-      <p class="summary">{{ story.summary }}</p>
+    <div v-else class="proposal-detail">
+      <h1 class="title">{{ proposal.title }}</h1>
       <p class="meta">
-        <span v-if="story.season" class="pill pill-muted">Season {{ story.season }}</span>
-        <span v-if="story.tags && story.tags.length" class="pill pill-muted">
-          {{ story.tags.length }} Tags
-        </span>
+        <span class="pill pill-muted">{{ formatLabel(proposal.status) }}</span>
+        <span v-if="proposal.askAmount" class="pill pill-muted">{{ formatAmount(proposal.askAmount) }}</span>
+        <span v-if="proposal.dateSent" class="pill pill-muted">Sent {{ formatDate(proposal.dateSent) }}</span>
       </p>
-
-      <div v-if="getMediaUrl(story)" class="media">
-        <img :src="getMediaUrl(story)" alt="Impact story media" />
-      </div>
 
       <div class="grid">
         <div class="field">
-          <div class="label">Season</div>
-          <div class="value">{{ story.season || '--' }}</div>
+          <div class="label">Donor</div>
+          <div class="value">{{ getRelationName(proposal.donor) }}</div>
         </div>
         <div class="field">
-          <div class="label">Tags</div>
-          <div class="value">{{ formatTags(story.tags) }}</div>
+          <div class="label">Funding Opportunity</div>
+          <div class="value">{{ getRelationName(proposal.fundingOpportunity) }}</div>
         </div>
         <div class="field">
-          <div class="label">Media</div>
-          <div class="value">{{ getMediaUrl(story) ? 'Attached' : '--' }}</div>
+          <div class="label">Ask Amount</div>
+          <div class="value">{{ formatAmount(proposal.askAmount) }}</div>
+        </div>
+        <div class="field">
+          <div class="label">Date Sent</div>
+          <div class="value">{{ formatDate(proposal.dateSent) }}</div>
+        </div>
+        <div class="field">
+          <div class="label">Follow-Up Tasks</div>
+          <div class="value">{{ formatCount(proposal.followUpTasks) }}</div>
+        </div>
+        <div class="field">
+          <div class="label">Attachments</div>
+          <div class="value">{{ formatCount(proposal.attachments) }}</div>
         </div>
       </div>
 
       <div class="notes">
-        <h2>Full Story</h2>
-        <p>{{ story.fullStory }}</p>
+        <h2>Narrative</h2>
+        <p>{{ proposal.narrative || '--' }}</p>
       </div>
     </div>
   </div>
@@ -46,46 +52,76 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useImpactStories } from '~/composables/useImpactStories'
-import type { ImpactStory } from '~/types/impact-story'
+import { useProposals } from '~/composables/useProposals'
+import type { Proposal } from '~/types/proposal'
 
 const route = useRoute()
-const { getImpactStoryById } = useImpactStories()
+const { getProposalById } = useProposals()
 
-const story = ref<ImpactStory | null>(null)
+const proposal = ref<Proposal | null>(null)
 const loading = ref(true)
 const error = ref('')
 
-const formatTags = (tags?: string[]): string => {
-  if (!tags || tags.length === 0) return '--'
-  return tags.join(', ')
+const getRelationName = (relation: any): string => {
+  if (!relation) return '--'
+  if (relation.name) return relation.name
+  if (relation.title) return relation.title
+  if (relation.data?.attributes?.name) return relation.data.attributes.name
+  if (relation.data?.attributes?.title) return relation.data.attributes.title
+  if (relation.data?.name) return relation.data.name
+  if (relation.data?.title) return relation.data.title
+  return '--'
 }
 
-function getMediaUrl(st: ImpactStory): string | undefined {
-  if (!st.media) return undefined
-  if ((st.media as any).data) {
-    return (st.media as any).data?.attributes?.url
+const formatLabel = (value?: string): string => {
+  if (!value) return '--'
+  return value.replace(/_/g, ' ')
+}
+
+const formatAmount = (value?: number): string => {
+  if (value === null || value === undefined) return '--'
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(value)
+  } catch {
+    return `${value}`
   }
-  return (st.media as any).url
+}
+
+const formatDate = (value?: string): string => {
+  if (!value) return '--'
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return value
+  return parsed.toLocaleDateString()
+}
+
+const formatCount = (relation: any): string => {
+  if (!relation) return '--'
+  if (Array.isArray(relation)) return relation.length ? `${relation.length}` : '--'
+  if (Array.isArray(relation.data)) return relation.data.length ? `${relation.data.length}` : '--'
+  return '--'
 }
 
 onMounted(async () => {
   const idParam = route.params.id
   const id = Array.isArray(idParam) ? idParam[0] : idParam
   if (!id) {
-    error.value = 'Invalid story ID'
+    error.value = 'Invalid proposal ID'
     loading.value = false
     return
   }
   try {
-    const res = await getImpactStoryById(id)
+    const res = await getProposalById(id)
     if (res) {
-      story.value = res
+      proposal.value = res
     } else {
-      error.value = 'Story not found'
+      error.value = 'Proposal not found'
     }
   } catch (e) {
-    error.value = 'Failed to load story'
+    error.value = 'Failed to load proposal'
     console.error(e)
   } finally {
     loading.value = false
@@ -118,6 +154,7 @@ onMounted(async () => {
   color: #0f172a;
 }
 
+.btn-primary,
 .btn-secondary {
   border: none;
   cursor: pointer;
@@ -130,6 +167,20 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-primary {
+  background: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(13, 148, 136, 0.2);
+}
+
+.btn-primary:hover {
+  background: #0d5f59;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
   background: #c7f9f2;
   color: #0f172a;
 }
@@ -153,7 +204,7 @@ onMounted(async () => {
   font-size: 1.125rem;
 }
 
-.story-detail {
+.proposal-detail {
   max-width: 900px;
   margin: 0 auto;
   background: var(--surface);
@@ -164,7 +215,7 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-.story-detail::before {
+.proposal-detail::before {
   content: '';
   position: absolute;
   top: 0;
@@ -178,12 +229,6 @@ onMounted(async () => {
   font-family: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: clamp(2rem, 4vw, 2.75rem);
   margin: 0 0 0.75rem;
-}
-
-.summary {
-  font-size: 1.1rem;
-  color: #475569;
-  margin-bottom: 1rem;
 }
 
 .meta {
@@ -206,13 +251,6 @@ onMounted(async () => {
 .pill-muted {
   background: #c7f9f2;
   color: #0f172a;
-}
-
-.media img {
-  max-width: 100%;
-  border-radius: 16px;
-  margin-bottom: 2rem;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
 }
 
 .grid {
@@ -260,7 +298,7 @@ onMounted(async () => {
 }
 
 @media (max-width: 640px) {
-  .story-detail {
+  .proposal-detail {
     padding: 2rem 1.5rem;
   }
 }

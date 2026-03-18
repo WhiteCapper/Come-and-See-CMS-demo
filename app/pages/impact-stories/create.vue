@@ -187,7 +187,7 @@ const submitForm = async () => {
   if (result) {
     successMessage.value = 'Impact story created successfully!'
     setTimeout(() => {
-      router.push('/')
+      router.push('/impact-stories')
     }, 2000)
   } else {
     errorMessage.value = 'Failed to create impact story. Please try again.'

@@ -1,38 +1,42 @@
 <template>
   <div class="list-container">
     <div class="list-wrapper">
-      <h1>Donors</h1>
-      <p class="subtitle">Manage donor profiles and engagement history</p>
+      <h1>KPIs</h1>
+      <p class="subtitle">Track performance indicators across donor engagement</p>
       <div class="page-actions">
         <NuxtLink to="/" class="btn-secondary back-link">Back to Home</NuxtLink>
-        <NuxtLink to="/donors/create" class="btn-primary">Create New Donor</NuxtLink>
+        <NuxtLink to="/kpis/create" class="btn-primary">Create New KPI</NuxtLink>
       </div>
 
-      <div v-if="loading" class="loading">Loading donors...</div>
+      <div v-if="loading" class="loading">Loading KPIs...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
 
-      <div v-else-if="donors.length === 0" class="empty">
-        No donors found.
+      <div v-else-if="kpis.length === 0" class="empty">
+        No KPIs found.
       </div>
 
       <div v-else class="table">
         <div class="table-header">
           <div class="cell name">Name</div>
-          <div class="cell events">Events</div>
-          <div class="cell staff">Assigned Staff</div>
+          <div class="cell category">Category</div>
+          <div class="cell value">Value</div>
+          <div class="cell target">Target</div>
+          <div class="cell period">Period</div>
           <div class="cell actions">Actions</div>
         </div>
 
         <div
-          v-for="donor in donors"
-          :key="donor.id"
+          v-for="kpi in kpis"
+          :key="kpi.id"
           class="table-row"
         >
-          <div class="cell name">{{ donor.name }}</div>
-          <div class="cell events">{{ getEventSummary(donor) }}</div>
-          <div class="cell staff">{{ donor.assignedStaff || '--' }}</div>
+          <div class="cell name">{{ kpi.name }}</div>
+          <div class="cell category">{{ formatLabel(kpi.category) }}</div>
+          <div class="cell value">{{ formatNumber(kpi.value) }}</div>
+          <div class="cell target">{{ formatNumber(kpi.targetValue) }}</div>
+          <div class="cell period">{{ formatLabel(kpi.period) }}</div>
           <div class="cell actions">
-            <NuxtLink :to="`/donors/${donor.documentId || donor.id}`" class="btn-details">
+            <NuxtLink :to="`/kpis/${kpi.documentId || kpi.id}`" class="btn-details">
               Details
             </NuxtLink>
           </div>
@@ -44,33 +48,33 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useDonors } from '~/composables/useDonors'
-import type { Donor } from '~/types/donor'
+import { useKpis } from '~/composables/useKpis'
+import type { KPI } from '~/types/kpi'
 
-const donors = ref<Donor[]>([])
+const kpis = ref<KPI[]>([])
 const loading = ref(true)
 const error = ref('')
 
-const { getDonors } = useDonors()
+const { getKpis } = useKpis()
 
-const getEventSummary = (donor: Donor): string => {
-  const events: any = donor.events
-  if (!events) return '--'
-  if (Array.isArray(events)) return events.length ? `${events.length} events` : '--'
-  if (Array.isArray(events.data)) {
-    return events.data.length ? `${events.data.length} events` : '--'
-  }
-  return '--'
+const formatLabel = (value?: string): string => {
+  if (!value) return '--'
+  return value.replace(/_/g, ' ')
+}
+
+const formatNumber = (value?: number): string => {
+  if (value === null || value === undefined) return '--'
+  return `${value}`
 }
 
 onMounted(async () => {
   try {
-    const res = await getDonors()
+    const res = await getKpis()
     if (res) {
-      donors.value = res
+      kpis.value = res
     }
   } catch (e) {
-    error.value = 'Failed to load donors.'
+    error.value = 'Failed to load KPIs.'
     console.error(e)
   } finally {
     loading.value = false
@@ -104,7 +108,7 @@ onMounted(async () => {
 }
 
 .list-wrapper {
-  max-width: 980px;
+  max-width: 1040px;
   margin: 0 auto;
   background: var(--surface);
   border-radius: 20px;
@@ -167,7 +171,7 @@ h1 {
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr 0.6fr;
+  grid-template-columns: 1.4fr 1fr 0.7fr 0.7fr 0.7fr 0.6fr;
   gap: 1rem;
   align-items: center;
   padding: 0.95rem 1.1rem;
@@ -192,6 +196,13 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.cell.category,
+.cell.period {
+  text-transform: capitalize;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .btn-primary,
@@ -234,6 +245,13 @@ h1 {
   transform: translateY(-1px);
 }
 
+@media (max-width: 980px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1.4fr 1fr 0.7fr 0.7fr 0.7fr 0.6fr;
+  }
+}
+
 @media (max-width: 900px) {
   .table-header {
     display: none;
@@ -253,13 +271,23 @@ h1 {
     font-weight: 700;
   }
 
-  .cell.events::before {
-    content: 'Events: ';
+  .cell.category::before {
+    content: 'Category: ';
     font-weight: 700;
   }
 
-  .cell.staff::before {
-    content: 'Assigned Staff: ';
+  .cell.value::before {
+    content: 'Value: ';
+    font-weight: 700;
+  }
+
+  .cell.target::before {
+    content: 'Target: ';
+    font-weight: 700;
+  }
+
+  .cell.period::before {
+    content: 'Period: ';
     font-weight: 700;
   }
 }

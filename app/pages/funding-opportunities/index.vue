@@ -1,38 +1,43 @@
 <template>
   <div class="list-container">
     <div class="list-wrapper">
-      <h1>Donors</h1>
-      <p class="subtitle">Manage donor profiles and engagement history</p>
+      <h1>Funding Opportunities</h1>
+      <p class="subtitle">Organize projects and initiatives for donor proposals</p>
       <div class="page-actions">
         <NuxtLink to="/" class="btn-secondary back-link">Back to Home</NuxtLink>
-        <NuxtLink to="/donors/create" class="btn-primary">Create New Donor</NuxtLink>
+        <NuxtLink to="/funding-opportunities/create" class="btn-primary">Create New Opportunity</NuxtLink>
       </div>
 
-      <div v-if="loading" class="loading">Loading donors...</div>
+      <div v-if="loading" class="loading">Loading funding opportunities...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
 
-      <div v-else-if="donors.length === 0" class="empty">
-        No donors found.
+      <div v-else-if="opportunities.length === 0" class="empty">
+        No funding opportunities found.
       </div>
 
       <div v-else class="table">
         <div class="table-header">
-          <div class="cell name">Name</div>
-          <div class="cell events">Events</div>
-          <div class="cell staff">Assigned Staff</div>
+          <div class="cell project">Project</div>
+          <div class="cell category">Category</div>
+          <div class="cell funding">Funding Level</div>
+          <div class="cell stories">Stories</div>
           <div class="cell actions">Actions</div>
         </div>
 
         <div
-          v-for="donor in donors"
-          :key="donor.id"
+          v-for="opportunity in opportunities"
+          :key="opportunity.id"
           class="table-row"
         >
-          <div class="cell name">{{ donor.name }}</div>
-          <div class="cell events">{{ getEventSummary(donor) }}</div>
-          <div class="cell staff">{{ donor.assignedStaff || '--' }}</div>
+          <div class="cell project">{{ opportunity.projectName }}</div>
+          <div class="cell category">{{ formatLabel(opportunity.category) }}</div>
+          <div class="cell funding">{{ formatAmount(opportunity.fundingLevel) }}</div>
+          <div class="cell stories">{{ formatCount(opportunity.relatedStories) }}</div>
           <div class="cell actions">
-            <NuxtLink :to="`/donors/${donor.documentId || donor.id}`" class="btn-details">
+            <NuxtLink
+              :to="`/funding-opportunities/${opportunity.documentId || opportunity.id}`"
+              class="btn-details"
+            >
               Details
             </NuxtLink>
           </div>
@@ -44,33 +49,48 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useDonors } from '~/composables/useDonors'
-import type { Donor } from '~/types/donor'
+import { useFundingOpportunities } from '~/composables/useFundingOpportunities'
+import type { FundingOpportunity } from '~/types/funding-opportunity'
 
-const donors = ref<Donor[]>([])
+const opportunities = ref<FundingOpportunity[]>([])
 const loading = ref(true)
 const error = ref('')
 
-const { getDonors } = useDonors()
+const { getFundingOpportunities } = useFundingOpportunities()
 
-const getEventSummary = (donor: Donor): string => {
-  const events: any = donor.events
-  if (!events) return '--'
-  if (Array.isArray(events)) return events.length ? `${events.length} events` : '--'
-  if (Array.isArray(events.data)) {
-    return events.data.length ? `${events.data.length} events` : '--'
+const formatLabel = (value?: string): string => {
+  if (!value) return '--'
+  return value.replace(/_/g, ' ')
+}
+
+const formatAmount = (value?: number): string => {
+  if (value === null || value === undefined) return '--'
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(value)
+  } catch {
+    return `${value}`
   }
+}
+
+const formatCount = (relation: any): string => {
+  if (!relation) return '--'
+  if (Array.isArray(relation)) return relation.length ? `${relation.length}` : '--'
+  if (Array.isArray(relation.data)) return relation.data.length ? `${relation.data.length}` : '--'
   return '--'
 }
 
 onMounted(async () => {
   try {
-    const res = await getDonors()
+    const res = await getFundingOpportunities()
     if (res) {
-      donors.value = res
+      opportunities.value = res
     }
   } catch (e) {
-    error.value = 'Failed to load donors.'
+    error.value = 'Failed to load funding opportunities.'
     console.error(e)
   } finally {
     loading.value = false
@@ -104,7 +124,7 @@ onMounted(async () => {
 }
 
 .list-wrapper {
-  max-width: 980px;
+  max-width: 1040px;
   margin: 0 auto;
   background: var(--surface);
   border-radius: 20px;
@@ -167,7 +187,7 @@ h1 {
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr 0.6fr;
+  grid-template-columns: 1.4fr 1fr 0.9fr 0.7fr 0.6fr;
   gap: 1rem;
   align-items: center;
   padding: 0.95rem 1.1rem;
@@ -192,6 +212,12 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.cell.category {
+  text-transform: capitalize;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .btn-primary,
@@ -234,6 +260,13 @@ h1 {
   transform: translateY(-1px);
 }
 
+@media (max-width: 980px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1.4fr 1fr 0.9fr 0.7fr 0.6fr;
+  }
+}
+
 @media (max-width: 900px) {
   .table-header {
     display: none;
@@ -248,18 +281,23 @@ h1 {
     white-space: normal;
   }
 
-  .cell.name::before {
-    content: 'Name: ';
+  .cell.project::before {
+    content: 'Project: ';
     font-weight: 700;
   }
 
-  .cell.events::before {
-    content: 'Events: ';
+  .cell.category::before {
+    content: 'Category: ';
     font-weight: 700;
   }
 
-  .cell.staff::before {
-    content: 'Assigned Staff: ';
+  .cell.funding::before {
+    content: 'Funding Level: ';
+    font-weight: 700;
+  }
+
+  .cell.stories::before {
+    content: 'Stories: ';
     font-weight: 700;
   }
 }
